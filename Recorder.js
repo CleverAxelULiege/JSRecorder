@@ -8,13 +8,15 @@ const VIDEO_CONSTRAINT = {
 export class Recorder {
     /**
      * @param {HTMLButtonElement} startRecordingButton 
-     * @param {HTMLButtonElement} stopRecordingButton 
+     * @param {HTMLButtonElement} stopRecordingButton
+     * @param {HTMLButtonElement} downloadingButton
      * @param {HTMLVideoElement} previewVideo 
      * @param {HTMLVideoElement} recordedVideo 
      */
     constructor(
         startRecordingButton,
         stopRecordingButton,
+        downloadingButton,
         previewVideo,
         recordedVideo,
         constraints = { video: true, audio: true }
@@ -23,6 +25,8 @@ export class Recorder {
         this.startRecordingButton = startRecordingButton;
         /**@type {HTMLButtonElement} */
         this.stopRecordingButton = stopRecordingButton;
+        /**@type {HTMLButtonElement} */
+        this.downloadingButton = downloadingButton;
         /**@type {HTMLVideoElement} */
         this.previewVideo = previewVideo;
         /**@type {HTMLVideoElement} */
@@ -91,8 +95,11 @@ export class Recorder {
         this.mediaRecorder.onstop = (event) => {
             console.log("stopped the recording");
             // let recordedBlob = new Blob(this.recordedChunks, { type: "video/webm" });
-            let recordedBlob = new Blob(this.recordedChunks, { type: "video/mp4" });
+            let recordedBlob = new Blob(this.recordedChunks, { type: "video/webm" });
             this.recordedVideo.src = URL.createObjectURL(recordedBlob);
+
+            this.downloadingButton.href = this.recordedVideo.src;
+            this.downloadingButton.download = "RecordedVideo.webm";
         }
     }
 

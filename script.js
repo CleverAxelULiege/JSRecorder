@@ -28,6 +28,8 @@ import { Recorder } from "./Recorder.js";
         const START_RECORDING_BUTTON = document.getElementById("start_recording_button");
         /** @type {HTMLButtonElement}*/
         const STOP_RECORDING_BUTTON = document.getElementById("stop_recording_button");
+        /** @type {HTMLButtonElement}*/
+        const DOWNLOAD_BUTTON = document.getElementById("download_button");
     
         /** @type {HTMLVideoElement}*/
         const PREVIEW_VIDEO = document.getElementById("preview_video");
@@ -37,6 +39,7 @@ import { Recorder } from "./Recorder.js";
         let recorder = new Recorder(
             START_RECORDING_BUTTON,
             STOP_RECORDING_BUTTON,
+            DOWNLOAD_BUTTON,
             PREVIEW_VIDEO,
             RECORDED_VIDEO,
             recorderConstraints

@@ -23,7 +23,7 @@ export class Peripheral {
         })
     }
 
-    /**@returns {Promise<{exist:boolean, hasPermission:boolean}>} */
+    /**@returns {Promise<{exists:boolean, hasPermission:boolean}>} */
     askAudioPermission(){
         return new Promise((resolve) => {
             let constraint = {
@@ -47,7 +47,7 @@ export class Peripheral {
         })
     }
 
-    /**@returns {Promise<{exist:boolean, hasPermission:boolean}>} */
+    /**@returns {Promise<{exists:boolean, hasPermission:boolean}>} */
     askVideoPermission(){
         return new Promise((resolve) => {
             let constraint = {
