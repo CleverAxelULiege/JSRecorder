@@ -1,3 +1,4 @@
+import { Peripheral } from "./Peripheral.js";
 import { Recorder } from "./Recorder.js";
 
 (() => {
@@ -5,6 +6,12 @@ import { Recorder } from "./Recorder.js";
         audio: true,
         video: false,
     }
+    let peripheral = new Peripheral();
+    peripheral.askPermissionsToDevices()
+    .then((constraints) => {
+        console.log();
+    })
+
 
     return;
 
