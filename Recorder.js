@@ -1,3 +1,10 @@
+const VIDEO_CONSTRAINT = {
+    width: 854,
+    height: 480,
+    frameRate : 24,
+    facingMode: "user",
+};
+
 export class Recorder {
     /**
      * @param {HTMLButtonElement} startRecordingButton 
@@ -90,8 +97,8 @@ export class Recorder {
             window.alert("No media stream set, you probably didn't start the recording.");
             return;
         }
-        
-        if(this.mediaRecorder === null){
+
+        if (this.mediaRecorder === null) {
             window.alert("No media recorder set, you probably didn't start the recording.");
             return;
         }
@@ -101,10 +108,10 @@ export class Recorder {
     }
 
     stopStreamingToPreviewVideo() {
-        if(this.constraints.video)
+        if (this.constraints.video)
             this.mediaStream.getVideoTracks()[0].enabled = false;
 
-        if(this.constraints.audio)
+        if (this.constraints.audio)
             this.mediaStream.getAudioTracks()[0].enabled = false;
     }
 
