@@ -5,7 +5,7 @@ export class Peripheral {
 
     }
 
-    /**@returns {Promise<{audio:{exist:boolean, hasPermission:boolean}, video:{exist:boolean, hasPermission:boolean}}>} */
+    /**@returns {Promise<{audio:{exists:boolean, hasPermission:boolean}, video:{exists:boolean, hasPermission:boolean}}>} */
     askPermissionsToDevices(){
         return new Promise((resolve) => {            
             Promise.all([this.askAudioPermission(), this.askVideoPermission()]).then((values) => {
@@ -21,12 +21,12 @@ export class Peripheral {
     askAudioPermission(){
         return new Promise((resolve) => {
             let constraint = {
-                exist : false,
+                exists : false,
                 hasPermission : false,
             }
             navigator.mediaDevices.getUserMedia({ audio: true })
             .then(() => {
-                constraint.exist = true;
+                constraint.exists = true;
                 constraint.hasPermission = true;
                 resolve(constraint);
             })
@@ -34,7 +34,7 @@ export class Peripheral {
                 //the error is a DOMException
                 //https://developer.mozilla.org/en-US/docs/Web/API/DOMException
                 if(err.code == PERMISSION_DENIED){
-                    constraint.exist = true;
+                    constraint.exists = true;
                 }
                 resolve(constraint);
             });
@@ -45,12 +45,12 @@ export class Peripheral {
     askVideoPermission(){
         return new Promise((resolve) => {
             let constraint = {
-                exist : false,
+                exists : false,
                 hasPermission : false,
             }
             navigator.mediaDevices.getUserMedia({ video: true })
             .then(() => {
-                constraint.exist = true;
+                constraint.exists = true;
                 constraint.hasPermission = true;
                 resolve(constraint);
             })
@@ -58,7 +58,7 @@ export class Peripheral {
                 //the error is a DOMException
                 //https://developer.mozilla.org/en-US/docs/Web/API/DOMException
                 if(err.code == PERMISSION_DENIED){
-                    constraint.exist = true;
+                    constraint.exists = true;
                 }
                 resolve(constraint);
             });
