@@ -13,12 +13,17 @@ import { Recorder } from "./Recorder.js";
                 window.alert("No permission to record from the audio device and/or from the video device.");
             }
             else {
-                init();
+                let recorderConstraints = {
+                    audio: device.audio.hasPermission && device.audio.exists,
+                    video: device.video.hasPermission && device.video.exists,
+                };
+
+                init(recorderConstraints);
             }
         })
 
 
-    function init(){
+    function init(recorderConstraints){
         /** @type {HTMLButtonElement}*/
         const START_RECORDING_BUTTON = document.getElementById("start_recording_button");
         /** @type {HTMLButtonElement}*/

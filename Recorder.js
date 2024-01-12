@@ -1,7 +1,7 @@
 const VIDEO_CONSTRAINT = {
     width: 854,
     height: 480,
-    frameRate : 24,
+    frameRate : {ideal: 24, max : 24},
     facingMode: "user",
 };
 
@@ -31,6 +31,10 @@ export class Recorder {
 
         /**@type {{video:boolean, audio:boolean}} */
         this.constraints = constraints;
+
+        if(constraints.video){
+            this.constraints.video = {...VIDEO_CONSTRAINT}
+        }
 
 
         /**@type {MediaStream|null} */
