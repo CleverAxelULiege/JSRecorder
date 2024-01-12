@@ -2,14 +2,16 @@ import { Peripheral } from "./Peripheral.js";
 import { Recorder } from "./Recorder.js";
 
 (() => {
-    let recorderConstraints = {
-        audio: true,
-        video: false,
-    }
     let peripheral = new Peripheral();
+    
     peripheral.askPermissionsToDevices()
-    .then((constraints) => {
-        console.log();
+    .then((device) => {
+        if(!device.audio.exist && !device.video.exist){
+            window.alert("No audio device or video device detected.");
+        }
+        else if(!device.audio.hasPermission && !device.video.hasPermission){
+            window.alert("No permission to record from the audio device or from the video device.");
+        }
     })
 
 
