@@ -101,8 +101,11 @@ export class Recorder {
     }
 
     stopStreamingToPreviewVideo() {
-        this.mediaStream.getVideoTracks()[0].enabled = false;
-        this.mediaStream.getAudioTracks()[0].enabled = false;
+        if(this.constraints.video)
+            this.mediaStream.getVideoTracks()[0].enabled = false;
+
+        if(this.constraints.audio)
+            this.mediaStream.getAudioTracks()[0].enabled = false;
     }
 
     stopRecording() {

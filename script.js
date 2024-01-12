@@ -3,8 +3,10 @@ import { Recorder } from "./Recorder.js";
 (() => {
     let recorderConstraints = {
         audio: true,
-        video: true,
+        video: false,
     }
+
+    return;
 
     console.log(mobileAndTabletCheck());
 
