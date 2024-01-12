@@ -9,14 +9,14 @@ export class Recorder {
     /**
      * @param {HTMLButtonElement} startRecordingButton 
      * @param {HTMLButtonElement} stopRecordingButton
-     * @param {HTMLButtonElement} downloadingButton
+     * @param {HTMLButtonElement} downloadButton
      * @param {HTMLVideoElement} previewVideo 
      * @param {HTMLVideoElement} recordedVideo 
      */
     constructor(
         startRecordingButton,
         stopRecordingButton,
-        downloadingButton,
+        downloadButton,
         previewVideo,
         recordedVideo,
         constraints = { video: true, audio: true }
@@ -26,7 +26,7 @@ export class Recorder {
         /**@type {HTMLButtonElement} */
         this.stopRecordingButton = stopRecordingButton;
         /**@type {HTMLButtonElement} */
-        this.downloadingButton = downloadingButton;
+        this.downloadButton = downloadButton;
         /**@type {HTMLVideoElement} */
         this.previewVideo = previewVideo;
         /**@type {HTMLVideoElement} */
@@ -98,8 +98,8 @@ export class Recorder {
             let recordedBlob = new Blob(this.recordedChunks, { type: "video/webm" });
             this.recordedVideo.src = URL.createObjectURL(recordedBlob);
 
-            this.downloadingButton.href = this.recordedVideo.src;
-            this.downloadingButton.download = "RecordedVideo.webm";
+            this.downloadButton.href = this.recordedVideo.src;
+            this.downloadButton.download = "RecordedVideo.webm";
         }
     }
 
