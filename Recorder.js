@@ -1,13 +1,22 @@
+const VIDEO_CONSTRAINT = {
+    width: 854,
+    height: 480,
+    frameRate : {ideal: 24, max : 24},
+    facingMode: "user",
+};
+
 export class Recorder {
     /**
      * @param {HTMLButtonElement} startRecordingButton 
-     * @param {HTMLButtonElement} stopRecordingButton 
+     * @param {HTMLButtonElement} stopRecordingButton
+     * @param {HTMLButtonElement} downloadButton
      * @param {HTMLVideoElement} previewVideo 
      * @param {HTMLVideoElement} recordedVideo 
      */
     constructor(
         startRecordingButton,
         stopRecordingButton,
+        downloadButton,
         previewVideo,
         recordedVideo,
         constraints = { video: true, audio: true }
@@ -16,6 +25,8 @@ export class Recorder {
         this.startRecordingButton = startRecordingButton;
         /**@type {HTMLButtonElement} */
         this.stopRecordingButton = stopRecordingButton;
+        /**@type {HTMLButtonElement} */
+        this.downloadButton = downloadButton;
         /**@type {HTMLVideoElement} */
         this.previewVideo = previewVideo;
         /**@type {HTMLVideoElement} */
@@ -24,6 +35,10 @@ export class Recorder {
 
         /**@type {{video:boolean, audio:boolean}} */
         this.constraints = constraints;
+
+        if(constraints.video){
+            this.constraints.video = {...VIDEO_CONSTRAINT}
+        }
 
 
         /**@type {MediaStream|null} */
@@ -80,8 +95,11 @@ export class Recorder {
         this.mediaRecorder.onstop = (event) => {
             console.log("stopped the recording");
             // let recordedBlob = new Blob(this.recordedChunks, { type: "video/webm" });
-            let recordedBlob = new Blob(this.recordedChunks, { type: "video/mp4" });
+            let recordedBlob = new Blob(this.recordedChunks, { type: "video/webm" });
             this.recordedVideo.src = URL.createObjectURL(recordedBlob);
+
+            this.downloadButton.href = this.recordedVideo.src;
+            this.downloadButton.download = "RecordedVideo.webm";
         }
     }
 
@@ -90,8 +108,8 @@ export class Recorder {
             window.alert("No media stream set, you probably didn't start the recording.");
             return;
         }
-        
-        if(this.mediaRecorder === null){
+
+        if (this.mediaRecorder === null) {
             window.alert("No media recorder set, you probably didn't start the recording.");
             return;
         }
@@ -101,8 +119,11 @@ export class Recorder {
     }
 
     stopStreamingToPreviewVideo() {
-        this.mediaStream.getVideoTracks()[0].enabled = false;
-        this.mediaStream.getAudioTracks()[0].enabled = false;
+        if (this.constraints.video)
+            this.mediaStream.getVideoTracks()[0].enabled = false;
+
+        if (this.constraints.audio)
+            this.mediaStream.getAudioTracks()[0].enabled = false;
     }
 
     stopRecording() {
