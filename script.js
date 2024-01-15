@@ -4,12 +4,15 @@ import { Recorder } from "./Recorder.js";
 const MAIN = document.querySelector("main");
 const ERROR_BOX = document.querySelector(".error_box");
 const GOT_PERMISSION_TO_RECORD_FROM_SITE = document.getElementById("permission_to_record_from_site");
-//Liste déroulante de sélection de périphérique
+
+//container des select de périphérique
 const DEVICES_CONTAINER = document.querySelector(".devices");
 const AUDIO_DEVICE_SELECT = document.getElementById("audio_device_select");
 const VIDEO_DEVICE_SELECT = document.getElementById("video_device_select")
 
 let device = new Device();
+
+/** @type {null|Recorder}*/
 let recorder = null;
 let recorderConstraints = {
     audio: false,
