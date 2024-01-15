@@ -60,6 +60,14 @@ main {
     flex-grow: 1;
 }
 
+main > div.error_box{
+    color: var(--red);
+    padding: 0;
+}
+main > div.error_box p{
+    padding: 5px;
+}
+
 main>div {
     max-width: 900px;
     margin: 0 auto;
@@ -196,7 +204,7 @@ main h2{
 
 .recorder{
     max-height: 100%;
-    max-width: 900px;
+    width: 900px;
     margin: 0 auto;
     padding: 10px;
     border-radius: 10px;

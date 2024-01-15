@@ -49,7 +49,7 @@ export class Recorder {
         /**@type {Blob[]} */
         this.recordedChunks = [];
 
-        this.initEventListeners();
+        // this.initEventListeners();
     }
 
 
