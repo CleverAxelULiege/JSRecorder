@@ -222,6 +222,7 @@ main h2{
 
 .recorder .video_container video{
     width: 100%;
+    background-color: black;
 }
 
 footer {

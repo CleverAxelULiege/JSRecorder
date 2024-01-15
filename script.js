@@ -1,6 +1,11 @@
 import { Device } from "./Device.js";
 import { Recorder } from "./Recorder.js";
 
+// onbeforeunload = (event) => {
+//     event.preventDefault();
+//     event.returnValue = true;
+// };
+
 const MAIN = document.querySelector("main");
 const ERROR_BOX = document.querySelector(".error_box");
 const GOT_PERMISSION_TO_RECORD_FROM_SITE = document.getElementById("permission_to_record_from_site");
@@ -14,10 +19,11 @@ let device = new Device();
 
 /** @type {null|Recorder}*/
 let recorder = null;
+
 let recorderConstraints = {
     audio: false,
     video: false,
-}
+};
 
 device.askPermissions()
     .then((_device) => {
@@ -42,7 +48,7 @@ device.askPermissions()
                 ERROR_BOX.innerHTML = `<p>Vous ne pouvez pas enregistrer une vidéo sans son, veuillez donner votre accord pour utiliser votre micro. ${msg}</p>`;
                 break;
             default:
-                ERROR_BOX.innerHTML = '<p>Une erreur inconnue est survenue.</p>';
+                ERROR_BOX.innerHTML = `<p>Une erreur inconnue est survenue. Contactez le responsable.</p>`;
                 break;
         }
 
@@ -56,12 +62,12 @@ function removePossibilityToRecordFromSite() {
 /**
  * Retirera la sélection de périphérique disponible en fonction de ce qui existe/a été autorisé
  */
-function tryToRemoveSelectableDevices(){
-    if(!recorderConstraints.audio){
+function tryToRemoveSelectableDevices() {
+    if (!recorderConstraints.audio) {
         DEVICES_CONTAINER.removeChild(document.querySelector(".device_container.audio_device"));
     }
-    
-    if(!recorderConstraints.video){
+
+    if (!recorderConstraints.video) {
         DEVICES_CONTAINER.removeChild(document.querySelector(".device_container.video_device"));
     }
 }
@@ -69,27 +75,28 @@ function tryToRemoveSelectableDevices(){
 /**
  * Populate les select disponibles en fonction des périphériques branchés
  */
-function enumerateDevicesInSelect(){
+function enumerateDevicesInSelect() {
     navigator.mediaDevices.enumerateDevices()
-    .then((_devices) => {
-        _devices.forEach((_device) => {
-            switch(_device.kind){
-                case "videoinput":
-                    if(recorderConstraints.video){
-                        VIDEO_DEVICE_SELECT.appendChild(createOptionDevice(_device));
-                    }
-                    break;
-                case "audioinput":
-                    if(recorderConstraints.audio){
-                        AUDIO_DEVICE_SELECT.appendChild(createOptionDevice(_device));
-                    }
-                    break;
-            }
-        })
-    })
+        .then((_devices) => {
+            _devices.forEach((_device) => {
+                switch (_device.kind) {
+                    case "videoinput":
+                        if (recorderConstraints.video) {
+                            VIDEO_DEVICE_SELECT.appendChild(createOptionDevice(_device));
+                        }
+                        break;
+                    case "audioinput":
+                        if (recorderConstraints.audio) {
+                            AUDIO_DEVICE_SELECT.appendChild(createOptionDevice(_device));
+                        }
+                        break;
+                }
+            });
+        });
 }
 
-function createOptionDevice(device){
+/** @param {MediaDeviceInfo} device */
+function createOptionDevice(device) {
     let option = document.createElement("option");
     option.textContent = device.label;
     option.value = device.deviceId
