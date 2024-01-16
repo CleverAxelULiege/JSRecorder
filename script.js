@@ -55,7 +55,6 @@ function removePossibilityToRecordFromSite() {
 
 /**
  * Mettra à jour le deviceId.
- * Vu que l'objet est passé par référence à Recorder, cela se mettra à jour
  */
 function updateDeviceIdInConstraintFromSelect() {
     if (recorderConstraints.audio) {
@@ -183,8 +182,14 @@ async function asyncAskPermissionsAndDetectDevices() {
 }
 
 
+/**
+ * Etonnement même en demandant un nouveau MediaStream il ne prend pas en compte le changement de périphérique vu que je passe
+ * les contraintes par référence.
+ * La seule solution que j'ai trouvé est de re-créer un object Recorder. Et si un Recorder a déjà été créé je m'assure
+ * que l'ObjectURL a bien été nettoyé, au cas où.
+ */
 function initRecording() {
-    
+
     if(recorder != null){
         recorder.clearObjectURL();
     }
@@ -201,6 +206,5 @@ function initRecording() {
         },
         recorderConstraints
     );
-
     recorder.startStreamingToPreviewVideo();
 }

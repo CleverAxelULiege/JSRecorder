@@ -100,8 +100,6 @@ export class Recorder {
         })
     }
 
-
-
     toggleVideoDevice() {
         if (!this.constraints.video) {
             window.alert("Didn't get the permission to use the video device or it doesn't exist.");
@@ -124,7 +122,7 @@ export class Recorder {
                 .then((stream) => {
                     this.mediaStream = stream;
                     this.previewVideo.srcObject = this.mediaStream;
-                    console.log(stream.getTracks());
+                    console.info("Started streaming to the preview video.");
                     resolve();
                 });
         })
@@ -186,7 +184,7 @@ export class Recorder {
         }
 
         this.mediaRecorder.onstop = (event) => {
-            console.log("stopped the recording");
+            console.info("Stopped the recording");
             // let recordedBlob = new Blob(this.recordedChunks, { type: "video/webm" });
             let recordedBlob = new Blob(this.recordedChunks, { type: "video/webm" });
 
@@ -226,7 +224,16 @@ export class Recorder {
     }
 
     stopRecording() {
-        this.pauseRecording();
+        this.isRecordPaused = false;
+
+        clearInterval(this.idInterval);
+
+        if (this.recordStarted)
+            this.mediaRecorder.pause();
+
+        this.startRecordingButton.querySelector(".circle").classList.remove("blink_animation");
+        this.pauseResumeRecordingButton.querySelector(".pause_icon").classList.remove("hidden");
+        this.pauseResumeRecordingButton.querySelector(".resume_icon").classList.add("hidden");
 
         if (this.recordStarted)
             this.mediaRecorder.stop();
@@ -251,6 +258,7 @@ export class Recorder {
         this.startRecordingButton.querySelector(".circle").classList.remove("blink_animation");
         this.pauseResumeRecordingButton.querySelector(".pause_icon").classList.add("hidden");
         this.pauseResumeRecordingButton.querySelector(".resume_icon").classList.remove("hidden");
+        this.pauseResumeRecordingButton.title = "Reprendre l'enregistrement";
     }
 
     resumeRecording() {
@@ -262,5 +270,6 @@ export class Recorder {
 
         this.pauseResumeRecordingButton.querySelector(".pause_icon").classList.remove("hidden");
         this.pauseResumeRecordingButton.querySelector(".resume_icon").classList.add("hidden");
+        this.pauseResumeRecordingButton.title = "Mettre en pause l'enregistrement";
     }
 }
