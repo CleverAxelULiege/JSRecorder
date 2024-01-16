@@ -1,10 +1,3 @@
-const VIDEO_CONSTRAINT = {
-    width: 854,
-    height: 480,
-    frameRate : {ideal: 24, max : 24},
-    facingMode: "user",
-};
-
 export class Recorder {
     /**
      * @param {HTMLButtonElement} startRecordingButton 
@@ -33,13 +26,11 @@ export class Recorder {
         this.recordedVideo = recordedVideo;
 
 
-        /**@type {{video:boolean, audio:boolean}} */
+        /**
+        * @type {{audio:boolean, video:boolean}|
+        * {audio:{deviceId:string|null}, video:{width:number, height:number, frameRate:{ideal:number, max:number}, facingMode:string, deviceId:string|null}}}
+        */
         this.constraints = constraints;
-
-        if(constraints.video){
-            this.constraints.video = {...VIDEO_CONSTRAINT}
-        }
-
 
         /**@type {MediaStream|null} */
         this.mediaStream = null;

@@ -74,10 +74,6 @@ export class Device {
                 } else {
                     reject(this.status);
                 }
-                // resolve({
-                //     audio : values[0],
-                //     video : values[1]
-                // })
             });
         })
     }

@@ -18,7 +18,10 @@ const VIDEO_CONSTRAINT = {
 const AUDIO_CONSTRAINT = {
     deviceId: null
 };
-
+/**
+ * @type {{audio:boolean, video:boolean}|
+ * {audio:{deviceId:string|null}, video:{width:number, height:number, frameRate:{ideal:number, max:number}, facingMode:string, deviceId:string|null}}}
+ */
 let recorderConstraints = {
     audio: false,
     video: false,
@@ -50,16 +53,20 @@ function removePossibilityToRecordFromSite() {
     MAIN.removeChild(GOT_PERMISSION_TO_RECORD_FROM_SITE);
 }
 
-function updateDeviceInConstraintFromSelect(){
+/**
+ * Mettra à jour le deviceId.
+ * Vu que l'objet est passé par référence à Recorder, cela se mettra à jour
+ */
+function updateDeviceIdInConstraintFromSelect(){
     if(recorderConstraints.audio){
         AUDIO_DEVICE_SELECT.addEventListener("change", (e) => {
-            console.log(e.target.value);
+            recorderConstraints.audio.deviceId = e.target.value;
         });
     }
     
     if(recorderConstraints.video){
         VIDEO_DEVICE_SELECT.addEventListener("change", (e) => {
-
+            recorderConstraints.video.deviceId = e.target.value;
         });
     }
 }
@@ -68,7 +75,7 @@ function updateDeviceInConstraintFromSelect(){
  * 
  * @param {string|null} audioDeviceId 
  * @param {string|null} videoDeviceId 
- * Va mettre à jour l'objet RecorderConstraint avec les paramètres accummulés.
+ * Va mettre à jour l'objet recorderConstraints avec les paramètres accummulés.
  */
 function setRecorderConstraints(audioDeviceId, videoDeviceId){
     if(recorderConstraints.video){
@@ -123,8 +130,8 @@ function enumerateDevicesInSelect(audioDeviceId, videoDeviceId) {
 }
 
 /**
- * 
- * @param {MediaDeviceInfo} device 
+ * @param {MediaDeviceInfo} device
+ * @param {boolean} selected
  */
 function createOptionDevice(device, selected) {
     let option = document.createElement("option");
@@ -142,13 +149,14 @@ async function asyncAskPermissionsAndDetectDevices(){
         let _device = await device.askPermissions();
         recorderConstraints.audio = _device.audio.hasPermission && _device.audio.exists;
         recorderConstraints.video = _device.video.hasPermission && _device.video.exists;
+
+        //permission accordée on peut afficher le "formulaire"
         GOT_PERMISSION_TO_RECORD_FROM_SITE.classList.remove("hidden");
 
         tryToRemoveSelectableDevices();
         enumerateDevicesInSelect(_device.audio.deviceId, _device.video.deviceId);
         setRecorderConstraints(_device.audio.deviceId, _device.video.deviceId);
-        console.log(recorderConstraints);
-        updateDeviceInConstraintFromSelect();
+        updateDeviceIdInConstraintFromSelect();
         initRecording();
 
     }catch(status){
