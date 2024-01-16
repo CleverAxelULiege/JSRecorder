@@ -1,29 +1,36 @@
 export class Recorder {
     /**
-     * @param {HTMLButtonElement} startRecordingButton 
-     * @param {HTMLButtonElement} stopRecordingButton
-     * @param {HTMLButtonElement} downloadButton
-     * @param {HTMLVideoElement} previewVideo 
-     * @param {HTMLVideoElement} recordedVideo 
+     * @param {{
+     * startRecordingButton:HTMLButtonElement, 
+     * stopRecordingButton:HTMLButtonElement,
+     * toggleVideoDeviceButton:HTMLButtonElement|null,
+     * downloadButton:HTMLButtonElement, 
+     * previewVideo:HTMLVideoElement, 
+     * recordedVideo:HTMLVideoElement}} element
      */
     constructor(
-        startRecordingButton,
-        stopRecordingButton,
-        downloadButton,
-        previewVideo,
-        recordedVideo,
-        constraints = { video: true, audio: true }
+        element,
+        constraints,
     ) {
         /**@type {HTMLButtonElement} */
-        this.startRecordingButton = startRecordingButton;
+        this.startRecordingButton = element.startRecordingButton;
+
         /**@type {HTMLButtonElement} */
-        this.stopRecordingButton = stopRecordingButton;
+        this.stopRecordingButton = element.stopRecordingButton;
+
+        /**@type {HTMLButtonElement|null} */
+        this.toggleVideoDeviceButton = element.toggleVideoDeviceButton;
+
         /**@type {HTMLButtonElement} */
-        this.downloadButton = downloadButton;
+        this.downloadButton = element.downloadButton || document.createElement("a");
+
+
+
         /**@type {HTMLVideoElement} */
-        this.previewVideo = previewVideo;
+        this.previewVideo = element.previewVideo;
+
         /**@type {HTMLVideoElement} */
-        this.recordedVideo = recordedVideo;
+        this.recordedVideo = element.recordedVideo;
 
 
         /**
@@ -40,7 +47,7 @@ export class Recorder {
         /**@type {Blob[]} */
         this.recordedChunks = [];
 
-        // this.initEventListeners();
+        this.initEventListeners();
     }
 
 
@@ -52,6 +59,20 @@ export class Recorder {
         this.stopRecordingButton.addEventListener("click", () => {
             this.stopStreamingAndRecording();
         })
+
+        this.toggleVideoDeviceButton.addEventListener("click", () => {
+            this.toggleVideoDevice();
+        })
+    }
+
+    toggleVideoDevice() {
+        if(!this.constraints.video){
+            window.alert("Didn't get the permission to use the video device or it doesn't exist.");
+            return;
+        }
+
+        this.mediaStream.getVideoTracks()[0].enabled = !this.mediaStream.getVideoTracks()[0].enabled;
+        this.toggleVideoDeviceButton.classList.toggle("disabled_by_user");
     }
 
     async asyncStartStreamingAndRecording() {

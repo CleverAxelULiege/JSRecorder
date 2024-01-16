@@ -10,9 +10,9 @@ import { Recorder } from "./Recorder.js";
 const VIDEO_CONSTRAINT = {
     width: 854,
     height: 480,
-    frameRate : {ideal: 24, max : 24},
+    frameRate: { ideal: 24, max: 24 },
     facingMode: "user",
-    deviceId : null,
+    deviceId: null,
 };
 
 const AUDIO_CONSTRAINT = {
@@ -57,14 +57,14 @@ function removePossibilityToRecordFromSite() {
  * Mettra à jour le deviceId.
  * Vu que l'objet est passé par référence à Recorder, cela se mettra à jour
  */
-function updateDeviceIdInConstraintFromSelect(){
-    if(recorderConstraints.audio){
+function updateDeviceIdInConstraintFromSelect() {
+    if (recorderConstraints.audio) {
         AUDIO_DEVICE_SELECT.addEventListener("change", (e) => {
             recorderConstraints.audio.deviceId = e.target.value;
         });
     }
-    
-    if(recorderConstraints.video){
+
+    if (recorderConstraints.video) {
         VIDEO_DEVICE_SELECT.addEventListener("change", (e) => {
             recorderConstraints.video.deviceId = e.target.value;
         });
@@ -77,14 +77,14 @@ function updateDeviceIdInConstraintFromSelect(){
  * @param {string|null} videoDeviceId 
  * Va mettre à jour l'objet recorderConstraints avec les paramètres accummulés.
  */
-function setRecorderConstraints(audioDeviceId, videoDeviceId){
-    if(recorderConstraints.video){
-        recorderConstraints.video = {...VIDEO_CONSTRAINT};
+function setRecorderConstraints(audioDeviceId, videoDeviceId) {
+    if (recorderConstraints.video) {
+        recorderConstraints.video = { ...VIDEO_CONSTRAINT };
         recorderConstraints.video.deviceId = videoDeviceId;
     }
 
-    if(recorderConstraints.audio){
-        recorderConstraints.audio = {...AUDIO_CONSTRAINT};
+    if (recorderConstraints.audio) {
+        recorderConstraints.audio = { ...AUDIO_CONSTRAINT };
         recorderConstraints.audio.deviceId = audioDeviceId;
     }
 }
@@ -144,8 +144,8 @@ function createOptionDevice(device, selected) {
 /**
  * Demande/détecte les périphériques d'entrée et mettra à jour le DOM et les contraintes de mediaDevice en fonction des scénarios
  */
-async function asyncAskPermissionsAndDetectDevices(){
-    try{
+async function asyncAskPermissionsAndDetectDevices() {
+    try {
         let _device = await device.askPermissions();
         recorderConstraints.audio = _device.audio.hasPermission && _device.audio.exists;
         recorderConstraints.video = _device.video.hasPermission && _device.video.exists;
@@ -159,7 +159,7 @@ async function asyncAskPermissionsAndDetectDevices(){
         updateDeviceIdInConstraintFromSelect();
         initRecording();
 
-    }catch(status){
+    } catch (status) {
         let msg = "Il vous est impossible d'enregistrer une vidéo depuis le site.<br><br>Néanmoins, vous avez toujours la possibilité d'upload(ou télécharger en amont) une vidéo enregistrée personnellement."
         switch (status) {
             case device.statusNoAudioNoVideo:
@@ -182,24 +182,15 @@ async function asyncAskPermissionsAndDetectDevices(){
 
 
 function initRecording() {
-    /** @type {HTMLButtonElement}*/
-    const START_RECORDING_BUTTON = document.getElementById("start_recording_button");
-    /** @type {HTMLButtonElement}*/
-    const STOP_RECORDING_BUTTON = document.getElementById("stop_recording_button");
-    /** @type {HTMLButtonElement}*/
-    const DOWNLOAD_BUTTON = document.getElementById("download_button");
-
-    /** @type {HTMLVideoElement}*/
-    const PREVIEW_VIDEO = document.getElementById("preview_video");
-    /** @type {HTMLVideoElement}*/
-    const RECORDED_VIDEO = document.getElementById("recorded_video");
-
     recorder = new Recorder(
-        START_RECORDING_BUTTON,
-        STOP_RECORDING_BUTTON,
-        DOWNLOAD_BUTTON,
-        PREVIEW_VIDEO,
-        RECORDED_VIDEO,
+        {
+            startRecordingButton: document.getElementById("start_recording_button"),
+            stopRecordingButton: document.getElementById("stop_recording_button"),
+            toggleVideoDeviceButton: document.getElementById("toggle_video_device_button"),
+            downloadButton: document.getElementById("download_button"),
+            previewVideo: document.getElementById("preview_video"),
+            recordedVideo: document.getElementById("recorded_video")
+        },
         recorderConstraints
     );
 

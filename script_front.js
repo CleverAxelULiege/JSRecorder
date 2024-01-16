@@ -1,9 +1,9 @@
-const DISPLAY_RECORDER_BUTTON = document.querySelector("#display_recorder_button");
+const DISPLAY_RECORDER_BUTTON = document.querySelector(".display_recorder_button");
+const CLOSE_RECORDER_BUTTON = document.querySelector(".close_recorder_button");
 
 //c'est le truc avec un background rgba avec une opacité de ~0.7 et qui contient le retour caméra, bouton etc
 const RECORDER_CONTAINER = document.querySelector(".recorder_container");
 const RECORDER = document.querySelector(".recorder");
-const CLOSE_RECORDER_BUTTON = document.querySelector(".close_recorder_button");
 
 let isRecorderContainerUp = false;
 
@@ -22,13 +22,17 @@ CLOSE_RECORDER_BUTTON.addEventListener("click", () => {
 })
 
 DISPLAY_RECORDER_BUTTON.addEventListener("click", () => {
+    openRecorderContainer();
+});
+
+function openRecorderContainer(){
     RECORDER_CONTAINER.classList.remove("hidden");
     document.body.style.overflowY = "hidden";
     setTimeout(() => {
         isRecorderContainerUp = true;
         RECORDER.classList.remove("animation_enter_recorder");
     });
-});
+}
 
 
 function closeRecorderContainer(){
@@ -37,4 +41,6 @@ function closeRecorderContainer(){
     isRecorderContainerUp = false;
     RECORDER.classList.add("animation_enter_recorder");
 }
+
+openRecorderContainer();
 
