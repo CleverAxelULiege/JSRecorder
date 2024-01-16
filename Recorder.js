@@ -63,9 +63,14 @@ export class Recorder {
 
 
     initEventListeners() {
+        
         this.startRecordingButton.addEventListener("click", () => {
             if (this.recordStarted) {
                 window.alert("The recording already started.");
+                return;
+            }
+
+            if(this.recordedVideo.src != "" && !window.confirm("Vous vous apprêtez à enregistrer par dessus une vidéo déjà tournée (et donc à l'effacer), continuer ?")){
                 return;
             }
 
@@ -171,6 +176,7 @@ export class Recorder {
             window.alert("No stream available.");
             return;
         }
+        this.clearObjectURL();
         this.mediaRecorder = new MediaRecorder(this.mediaStream);
         this.initEventListenersOnMediaRecorder();
         this.startCounterTimeElapsed();
@@ -178,21 +184,21 @@ export class Recorder {
     }
 
     initEventListenersOnMediaRecorder() {
-
+        this.recordedChunks = [];
         this.mediaRecorder.ondataavailable = (blobEvent) => {
             this.recordedChunks.push(blobEvent.data);
         }
 
-        this.mediaRecorder.onstop = (event) => {
+        this.mediaRecorder.onstop = () => {
             console.info("Stopped the recording");
             // let recordedBlob = new Blob(this.recordedChunks, { type: "video/webm" });
             let recordedBlob = new Blob(this.recordedChunks, { type: "video/webm" });
 
-            this.clearObjectURL();
+            
             this.recordedVideo.src = URL.createObjectURL(recordedBlob);
 
-            this.downloadButton.href = this.recordedVideo.src;
-            this.downloadButton.download = "RecordedVideo.webm";
+            // this.downloadButton.href = this.recordedVideo.src;
+            // this.downloadButton.download = "RecordedVideo.webm";
         }
     }
 
