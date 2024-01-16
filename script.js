@@ -1,3 +1,4 @@
+"use strict";
 import { Device } from "./Device.js";
 import { Recorder } from "./Recorder.js";
 
@@ -6,7 +7,26 @@ import { Recorder } from "./Recorder.js";
 //     event.returnValue = true;
 // };
 
+const VIDEO_CONSTRAINT = {
+    width: 854,
+    height: 480,
+    frameRate : {ideal: 24, max : 24},
+    facingMode: "user",
+    deviceId : null,
+};
+
+const AUDIO_CONSTRAINT = {
+    deviceId: null
+};
+
+let recorderConstraints = {
+    audio: false,
+    video: false,
+};
+
 const MAIN = document.querySelector("main");
+
+//Contiendra les messages d'erreur si aucun périphérique détecté/aucune permission
 const ERROR_BOX = document.querySelector(".error_box");
 const GOT_PERMISSION_TO_RECORD_FROM_SITE = document.getElementById("permission_to_record_from_site");
 
@@ -20,22 +40,118 @@ let device = new Device();
 /** @type {null|Recorder}*/
 let recorder = null;
 
-let recorderConstraints = {
-    audio: false,
-    video: false,
-};
 
-device.askPermissions()
-    .then((_device) => {
+asyncAskPermissionsAndDetectDevices();
+
+/**
+ * Retire le "formulaire" pour enregistrer une vidéo depuis le site.
+ */
+function removePossibilityToRecordFromSite() {
+    MAIN.removeChild(GOT_PERMISSION_TO_RECORD_FROM_SITE);
+}
+
+function updateDeviceInConstraintFromSelect(){
+    if(recorderConstraints.audio){
+        AUDIO_DEVICE_SELECT.addEventListener("change", (e) => {
+            console.log(e.target.value);
+        });
+    }
+    
+    if(recorderConstraints.video){
+        VIDEO_DEVICE_SELECT.addEventListener("change", (e) => {
+
+        });
+    }
+}
+
+/**
+ * 
+ * @param {string|null} audioDeviceId 
+ * @param {string|null} videoDeviceId 
+ * Va mettre à jour l'objet RecorderConstraint avec les paramètres accummulés.
+ */
+function setRecorderConstraints(audioDeviceId, videoDeviceId){
+    if(recorderConstraints.video){
+        recorderConstraints.video = {...VIDEO_CONSTRAINT};
+        recorderConstraints.video.deviceId = videoDeviceId;
+    }
+
+    if(recorderConstraints.audio){
+        recorderConstraints.audio = {...AUDIO_CONSTRAINT};
+        recorderConstraints.audio.deviceId = audioDeviceId;
+    }
+}
+
+/**
+ * Retirera la sélection de périphérique disponible en fonction de ce qui existe/a été autorisé
+ */
+function tryToRemoveSelectableDevices() {
+    if (!recorderConstraints.audio) {
+        DEVICES_CONTAINER.removeChild(document.querySelector(".device_container.audio_device"));
+    }
+
+    if (!recorderConstraints.video) {
+        DEVICES_CONTAINER.removeChild(document.querySelector(".device_container.video_device"));
+    }
+}
+
+/**
+ * 
+ * @param {string|null} audioDeviceId 
+ * @param {string|null} videoDeviceId
+ * Va populate les select en fonction des periphériques disponibles.
+ * Je me serts des deviceIds pour sélectionner celui choisi par la boite de dialogue.
+ */
+function enumerateDevicesInSelect(audioDeviceId, videoDeviceId) {
+    navigator.mediaDevices.enumerateDevices()
+        .then((_devices) => {
+            _devices.forEach((_device) => {
+                switch (_device.kind) {
+                    case "videoinput":
+                        if (recorderConstraints.video) {
+                            VIDEO_DEVICE_SELECT.appendChild(createOptionDevice(_device, _device.deviceId == videoDeviceId));
+                        }
+                        break;
+                    case "audioinput":
+                        if (recorderConstraints.audio) {
+                            AUDIO_DEVICE_SELECT.appendChild(createOptionDevice(_device, _device.deviceId == audioDeviceId));
+                        }
+                        break;
+                }
+            });
+        });
+}
+
+/**
+ * 
+ * @param {MediaDeviceInfo} device 
+ */
+function createOptionDevice(device, selected) {
+    let option = document.createElement("option");
+    option.textContent = device.label;
+    option.value = device.deviceId;
+    option.selected = selected;
+    return option;
+}
+
+/**
+ * Demande/détecte les périphériques d'entrée et mettra à jour le DOM et les contraintes de mediaDevice en fonction des scénarios
+ */
+async function asyncAskPermissionsAndDetectDevices(){
+    try{
+        let _device = await device.askPermissions();
         recorderConstraints.audio = _device.audio.hasPermission && _device.audio.exists;
         recorderConstraints.video = _device.video.hasPermission && _device.video.exists;
         GOT_PERMISSION_TO_RECORD_FROM_SITE.classList.remove("hidden");
 
         tryToRemoveSelectableDevices();
-        enumerateDevicesInSelect();
-        initRecording(recorderConstraints);
-    })
-    .catch((status) => {
+        enumerateDevicesInSelect(_device.audio.deviceId, _device.video.deviceId);
+        setRecorderConstraints(_device.audio.deviceId, _device.video.deviceId);
+        console.log(recorderConstraints);
+        updateDeviceInConstraintFromSelect();
+        initRecording();
+
+    }catch(status){
         let msg = "Il vous est impossible d'enregistrer une vidéo depuis le site.<br><br>Néanmoins, vous avez toujours la possibilité d'upload(ou télécharger en amont) une vidéo enregistrée personnellement."
         switch (status) {
             case device.statusNoAudioNoVideo:
@@ -53,57 +169,11 @@ device.askPermissions()
         }
 
         removePossibilityToRecordFromSite();
-    });
-
-function removePossibilityToRecordFromSite() {
-    MAIN.removeChild(GOT_PERMISSION_TO_RECORD_FROM_SITE);
-}
-
-/**
- * Retirera la sélection de périphérique disponible en fonction de ce qui existe/a été autorisé
- */
-function tryToRemoveSelectableDevices() {
-    if (!recorderConstraints.audio) {
-        DEVICES_CONTAINER.removeChild(document.querySelector(".device_container.audio_device"));
-    }
-
-    if (!recorderConstraints.video) {
-        DEVICES_CONTAINER.removeChild(document.querySelector(".device_container.video_device"));
     }
 }
 
-/**
- * Populate les select disponibles en fonction des périphériques branchés
- */
-function enumerateDevicesInSelect() {
-    navigator.mediaDevices.enumerateDevices()
-        .then((_devices) => {
-            _devices.forEach((_device) => {
-                switch (_device.kind) {
-                    case "videoinput":
-                        if (recorderConstraints.video) {
-                            VIDEO_DEVICE_SELECT.appendChild(createOptionDevice(_device));
-                        }
-                        break;
-                    case "audioinput":
-                        if (recorderConstraints.audio) {
-                            AUDIO_DEVICE_SELECT.appendChild(createOptionDevice(_device));
-                        }
-                        break;
-                }
-            });
-        });
-}
 
-/** @param {MediaDeviceInfo} device */
-function createOptionDevice(device) {
-    let option = document.createElement("option");
-    option.textContent = device.label;
-    option.value = device.deviceId
-    return option;
-}
-
-function initRecording(recorderConstraints) {
+function initRecording() {
     /** @type {HTMLButtonElement}*/
     const START_RECORDING_BUTTON = document.getElementById("start_recording_button");
     /** @type {HTMLButtonElement}*/

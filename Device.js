@@ -26,7 +26,7 @@ export class Device {
     }
 
     /**
-     * @param {{audio:{exists:boolean, hasPermission:boolean}, video:{exists:boolean, hasPermission:boolean}}} device 
+     * @param {{audio:{exists:boolean, hasPermission:boolean, deviceId:string}, video:{exists:boolean, hasPermission:boolean, deviceId:string}}} device 
      */
     checkIfGotCorrectPermissionsToRecord(device) {
         if (!device.audio.exists && !device.video.exists) {
@@ -60,7 +60,7 @@ export class Device {
         return check;
     }
 
-    /**@returns {Promise<{audio:{exists:boolean, hasPermission:boolean}, video:{exists:boolean, hasPermission:boolean}}>} */
+    /**@returns {Promise<{audio:{exists:boolean, hasPermission:boolean, deviceId:string}, video:{exists:boolean, hasPermission:boolean, deviceId:string}}>} */
     askPermissions() {
         return new Promise((resolve, reject) => {
             Promise.all([this.askAudioPermission(), this.askVideoPermission()]).then((values) => {
@@ -82,17 +82,19 @@ export class Device {
         })
     }
 
-    /**@returns {Promise<{exists:boolean, hasPermission:boolean}>} */
+    /**@returns {Promise<{exists:boolean, hasPermission:boolean, deviceId:string}>} */
     askAudioPermission() {
         return new Promise((resolve) => {
             let constraint = {
                 exists: false,
                 hasPermission: false,
+                deviceId: null,
             }
             navigator.mediaDevices.getUserMedia({ audio: true })
-                .then(() => {
+                .then((stream) => {
                     constraint.exists = true;
                     constraint.hasPermission = true;
+                    constraint.deviceId = stream.getTracks()[0].getSettings().deviceId;
                     resolve(constraint);
                 })
                 .catch((err) => {
@@ -106,17 +108,19 @@ export class Device {
         })
     }
 
-    /**@returns {Promise<{exists:boolean, hasPermission:boolean}>} */
+    /**@returns {Promise<{exists:boolean, hasPermission:boolean, deviceId:string}>} */
     askVideoPermission() {
         return new Promise((resolve) => {
             let constraint = {
                 exists: false,
                 hasPermission: false,
+                deviceId: null,
             }
             navigator.mediaDevices.getUserMedia({ video: true })
-                .then(() => {
+                .then((stream) => {
                     constraint.exists = true;
                     constraint.hasPermission = true;
+                    constraint.deviceId = stream.getTracks()[0].getSettings().deviceId;
                     resolve(constraint);
                 })
                 .catch((err) => {
