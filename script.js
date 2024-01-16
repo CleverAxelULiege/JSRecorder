@@ -186,6 +186,7 @@ function initRecording() {
         {
             startRecordingButton: document.getElementById("start_recording_button"),
             stopRecordingButton: document.getElementById("stop_recording_button"),
+            pauseResumeRecordingButton: document.getElementById("pause_resume_recording_button"),
             toggleVideoDeviceButton: document.getElementById("toggle_video_device_button"),
             downloadButton: document.getElementById("download_button"),
             previewVideo: document.getElementById("preview_video"),

@@ -3,6 +3,7 @@ export class Recorder {
      * @param {{
      * startRecordingButton:HTMLButtonElement, 
      * stopRecordingButton:HTMLButtonElement,
+     * pauseResumeRecordingButton:HTMLButtonElement,
      * toggleVideoDeviceButton:HTMLButtonElement|null,
      * downloadButton:HTMLButtonElement, 
      * previewVideo:HTMLVideoElement, 
@@ -18,6 +19,9 @@ export class Recorder {
         /**@type {HTMLButtonElement} */
         this.stopRecordingButton = element.stopRecordingButton;
 
+        /**@type {HTMLButtonElement} */
+        this.pauseResumeRecordingButton = element.pauseResumeRecordingButton;
+
         /**@type {HTMLButtonElement|null} */
         this.toggleVideoDeviceButton = element.toggleVideoDeviceButton;
 
@@ -25,12 +29,14 @@ export class Recorder {
         this.downloadButton = element.downloadButton || document.createElement("a");
 
 
-
         /**@type {HTMLVideoElement} */
         this.previewVideo = element.previewVideo;
 
         /**@type {HTMLVideoElement} */
         this.recordedVideo = element.recordedVideo;
+
+        /**@type {HTMLSpanElement} */
+        this.timeElapsedSpan = this.startRecordingButton.querySelector(".time_elapsed");
 
 
         /**
@@ -47,17 +53,50 @@ export class Recorder {
         /**@type {Blob[]} */
         this.recordedChunks = [];
 
+        this.idInterval = null;
+        this.timeElapsedInSeconds = 0;
+        this.recordStarted = false;
+        this.isRecordPaused = false;
+
         this.initEventListeners();
     }
 
 
     initEventListeners() {
         this.startRecordingButton.addEventListener("click", () => {
-            this.asyncStartStreamingAndRecording();
+            if(this.recordStarted){
+                return;
+            }
+            // this.asyncStartStreamingAndRecording();
+
+            this.startCounterTimeElapsed();
+            this.startRecording();
         });
 
         this.stopRecordingButton.addEventListener("click", () => {
-            this.stopStreamingAndRecording();
+            if(!this.recordStarted){
+                return;
+            }
+            this.stopRecording();
+            // this.stopStreamingAndRecording();
+        })
+
+        this.pauseResumeRecordingButton.addEventListener("click", () => {
+            if(!this.recordStarted || this.mediaRecorder == null){
+                return;
+            }
+
+            if(this.isRecordPaused){
+                this.resumeRecording();
+                this.pauseResumeRecordingButton.querySelector(".pause_icon").classList.remove("hidden");
+                this.pauseResumeRecordingButton.querySelector(".resume_icon").classList.add("hidden");
+            } else {
+                this.pauseRecording();
+                this.pauseResumeRecordingButton.querySelector(".pause_icon").classList.add("hidden");
+                this.pauseResumeRecordingButton.querySelector(".resume_icon").classList.remove("hidden");
+            }
+
+            this.isRecordPaused = !this.isRecordPaused;
         })
 
         this.toggleVideoDeviceButton.addEventListener("click", () => {
@@ -92,7 +131,49 @@ export class Recorder {
         })
     }
 
+    startCounterTimeElapsed(){
+        this.recordStarted = true;
+        this.startRecordingButton.classList.add("active");
+        this.timeElapsedSpan.classList.remove("hidden");
+        this.stopRecordingButton.classList.remove("hidden");
+        this.pauseResumeRecordingButton.classList.remove("hidden");
+        this.startRecordingButton.querySelector(".circle").classList.add("blink_animation");
+        this.startRecordingButton.querySelector(".title").classList.add("hidden");
+        let offsetLeft = this.startRecordingButton.offsetLeft - 10;
+
+        this.startRecordingButton.style.transform = `translateX(-${offsetLeft}px)`;
+
+        this.timeElapsedInSeconds = 0;
+        clearInterval(this.idInterval);
+
+        this.formaTimeInCounter();
+        this.startInterval();
+    }
+
+    startInterval(){
+        this.idInterval = setInterval(() => {
+            this.timeElapsedInSeconds += 1;
+            this.formaTimeInCounter();
+        }, 1000);
+    }
+
+    formaTimeInCounter(){
+        let minute = Math.floor(this.timeElapsedInSeconds / 60);
+        let second = this.timeElapsedInSeconds % 60;
+
+        let minuteFormat = minute < 10 ? `0${minute}` : minute;
+        let secondFormat = second < 10 ? `0${second}` : second;
+
+        this.timeElapsedSpan.innerText = `${minuteFormat}:${secondFormat}`;
+    }
+
+    
+
     startRecording() {
+        if(this.mediaStream == null){
+            window.alert("No stream available.");
+            return;
+        }
         this.mediaRecorder = new MediaRecorder(this.mediaStream);
         this.initEventListenersOnMediaRecorder();
         this.mediaRecorder.start();
@@ -108,6 +189,8 @@ export class Recorder {
             console.log("stopped the recording");
             // let recordedBlob = new Blob(this.recordedChunks, { type: "video/webm" });
             let recordedBlob = new Blob(this.recordedChunks, { type: "video/webm" });
+
+            URL.revokeObjectURL(this.recordedVideo.src);
             this.recordedVideo.src = URL.createObjectURL(recordedBlob);
 
             this.downloadButton.href = this.recordedVideo.src;
@@ -140,5 +223,15 @@ export class Recorder {
 
     stopRecording() {
         this.mediaRecorder.stop();
+    }
+
+    pauseRecording(){
+        clearInterval(this.idInterval);
+        this.mediaRecorder.pause();
+    }
+
+    resumeRecording(){
+        this.startInterval();
+        this.mediaRecorder.resume();
     }
 }

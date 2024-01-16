@@ -241,11 +241,17 @@ main h2 {
     justify-content: center;
 }
 
+.recorder_pause_resume_rec_button.hidden,
+.recorder_stop_rec_button.hidden{
+    display: none;
+}
+
 .recorder_rec_button,
 .recorder_toggle_video_button,
-.recorder_stop_rec_button {
+.recorder_stop_rec_button,
+.recorder_pause_resume_rec_button {
     position: relative;
-    width: 50px;
+    min-width: 50px;
     height: 50px;
     border-radius: 10px;
     background-color: white;
@@ -255,6 +261,13 @@ main h2 {
     gap: 2px;
     border: 2px solid white;
     transition: all 100ms ease-in-out;
+}
+
+.recorder_rec_button.active{
+    position: absolute;
+    pointer-events: none;
+    padding-right: 5px;
+    transition-duration: 200ms;
 }
 
 .recorder_toggle_video_button:disabled {
@@ -276,7 +289,8 @@ main h2 {
 
 .recorder_rec_button:hover,
 .recorder_toggle_video_button:hover,
-.recorder_stop_rec_button:hover {
+.recorder_stop_rec_button:hover,
+.recorder_pause_resume_rec_button:hover {
     background-color: transparent;
     color: white;
     fill: white;
@@ -299,6 +313,17 @@ main h2 {
     border-radius: 50%;
 }
 
+.recorder .circle.blink_animation{
+    animation: blink_animation 1s steps(2, start) infinite;
+}
+
 footer {
     margin-top: auto;
 }
+
+
+@keyframes blink_animation {
+    to {
+      visibility: hidden;
+    }
+  }
