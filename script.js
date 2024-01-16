@@ -61,12 +61,14 @@ function updateDeviceIdInConstraintFromSelect() {
     if (recorderConstraints.audio) {
         AUDIO_DEVICE_SELECT.addEventListener("change", (e) => {
             recorderConstraints.audio.deviceId = e.target.value;
+            initRecording();
         });
     }
 
     if (recorderConstraints.video) {
         VIDEO_DEVICE_SELECT.addEventListener("change", (e) => {
             recorderConstraints.video.deviceId = e.target.value;
+            initRecording();
         });
     }
 }
@@ -182,6 +184,11 @@ async function asyncAskPermissionsAndDetectDevices() {
 
 
 function initRecording() {
+    
+    if(recorder != null){
+        recorder.clearObjectURL();
+    }
+
     recorder = new Recorder(
         {
             startRecordingButton: document.getElementById("start_recording_button"),

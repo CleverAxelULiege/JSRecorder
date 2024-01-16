@@ -64,36 +64,32 @@ export class Recorder {
 
     initEventListeners() {
         this.startRecordingButton.addEventListener("click", () => {
-            if(this.recordStarted){
+            if (this.recordStarted) {
+                window.alert("The recording already started.");
                 return;
             }
-            // this.asyncStartStreamingAndRecording();
 
-            this.startCounterTimeElapsed();
             this.startRecording();
         });
 
         this.stopRecordingButton.addEventListener("click", () => {
-            if(!this.recordStarted){
+            if (!this.recordStarted || this.mediaRecorder == null) {
+                window.alert("No recording started or no recorder set.")
                 return;
             }
             this.stopRecording();
-            // this.stopStreamingAndRecording();
         })
 
         this.pauseResumeRecordingButton.addEventListener("click", () => {
-            if(!this.recordStarted || this.mediaRecorder == null){
+            if (!this.recordStarted || this.mediaRecorder == null) {
+                window.alert("No recording started or no recorder set.")
                 return;
             }
 
-            if(this.isRecordPaused){
+            if (this.isRecordPaused) {
                 this.resumeRecording();
-                this.pauseResumeRecordingButton.querySelector(".pause_icon").classList.remove("hidden");
-                this.pauseResumeRecordingButton.querySelector(".resume_icon").classList.add("hidden");
             } else {
                 this.pauseRecording();
-                this.pauseResumeRecordingButton.querySelector(".pause_icon").classList.add("hidden");
-                this.pauseResumeRecordingButton.querySelector(".resume_icon").classList.remove("hidden");
             }
 
             this.isRecordPaused = !this.isRecordPaused;
@@ -104,8 +100,10 @@ export class Recorder {
         })
     }
 
+
+
     toggleVideoDevice() {
-        if(!this.constraints.video){
+        if (!this.constraints.video) {
             window.alert("Didn't get the permission to use the video device or it doesn't exist.");
             return;
         }
@@ -126,12 +124,13 @@ export class Recorder {
                 .then((stream) => {
                     this.mediaStream = stream;
                     this.previewVideo.srcObject = this.mediaStream;
+                    console.log(stream.getTracks());
                     resolve();
                 });
         })
     }
 
-    startCounterTimeElapsed(){
+    startCounterTimeElapsed() {
         this.recordStarted = true;
         this.startRecordingButton.classList.add("active");
         this.timeElapsedSpan.classList.remove("hidden");
@@ -150,14 +149,14 @@ export class Recorder {
         this.startInterval();
     }
 
-    startInterval(){
+    startInterval() {
         this.idInterval = setInterval(() => {
             this.timeElapsedInSeconds += 1;
             this.formaTimeInCounter();
         }, 1000);
     }
 
-    formaTimeInCounter(){
+    formaTimeInCounter() {
         let minute = Math.floor(this.timeElapsedInSeconds / 60);
         let second = this.timeElapsedInSeconds % 60;
 
@@ -167,15 +166,16 @@ export class Recorder {
         this.timeElapsedSpan.innerText = `${minuteFormat}:${secondFormat}`;
     }
 
-    
+
 
     startRecording() {
-        if(this.mediaStream == null){
+        if (this.mediaStream == null) {
             window.alert("No stream available.");
             return;
         }
         this.mediaRecorder = new MediaRecorder(this.mediaStream);
         this.initEventListenersOnMediaRecorder();
+        this.startCounterTimeElapsed();
         this.mediaRecorder.start();
     }
 
@@ -190,12 +190,16 @@ export class Recorder {
             // let recordedBlob = new Blob(this.recordedChunks, { type: "video/webm" });
             let recordedBlob = new Blob(this.recordedChunks, { type: "video/webm" });
 
-            URL.revokeObjectURL(this.recordedVideo.src);
+            this.clearObjectURL();
             this.recordedVideo.src = URL.createObjectURL(recordedBlob);
 
             this.downloadButton.href = this.recordedVideo.src;
             this.downloadButton.download = "RecordedVideo.webm";
         }
+    }
+
+    clearObjectURL() {
+        URL.revokeObjectURL(this.recordedVideo.src);
     }
 
     stopStreamingAndRecording() {
@@ -222,16 +226,41 @@ export class Recorder {
     }
 
     stopRecording() {
-        this.mediaRecorder.stop();
-    }
+        this.pauseRecording();
 
-    pauseRecording(){
+        if (this.recordStarted)
+            this.mediaRecorder.stop();
+
+        this.recordStarted = false;
+        this.startRecordingButton.classList.remove("active");
+        this.timeElapsedSpan.classList.add("hidden");
+        this.stopRecordingButton.classList.add("hidden");
+        this.pauseResumeRecordingButton.classList.add("hidden");
+        this.startRecordingButton.querySelector(".circle").classList.remove("blink_animation");
+        this.startRecordingButton.querySelector(".title").classList.remove("hidden");
+        this.startRecordingButton.style.transform = ``;
         clearInterval(this.idInterval);
-        this.mediaRecorder.pause();
     }
 
-    resumeRecording(){
+    pauseRecording() {
+        clearInterval(this.idInterval);
+
+        if (this.recordStarted)
+            this.mediaRecorder.pause();
+
+        this.startRecordingButton.querySelector(".circle").classList.remove("blink_animation");
+        this.pauseResumeRecordingButton.querySelector(".pause_icon").classList.add("hidden");
+        this.pauseResumeRecordingButton.querySelector(".resume_icon").classList.remove("hidden");
+    }
+
+    resumeRecording() {
+        this.startRecordingButton.querySelector(".circle").classList.add("blink_animation");
         this.startInterval();
-        this.mediaRecorder.resume();
+
+        if (this.recordStarted)
+            this.mediaRecorder.resume();
+
+        this.pauseResumeRecordingButton.querySelector(".pause_icon").classList.remove("hidden");
+        this.pauseResumeRecordingButton.querySelector(".resume_icon").classList.add("hidden");
     }
 }
